@@ -1,0 +1,47 @@
+#include <sys/types.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <openssl/md5.h>
+#include <openssl/evp.h>
+
+int main (int argc, char* argv[]) {
+  int src_fd;
+  int dest_fd;
+  ssize_t readSize;
+  char filebuf[256];//allocating 256 per buffer
+  //printf("uid:%d\n",getuid());
+  //printf("euid:%d\n",geteuid());
+ EVP_MD_CTX md_context;
+ const EVP_MD* md = EVP_md5();
+ unsigned int md_length;
+ unsigned char md_value[EVP_MAX_MD_SIZE];
+EVP
+ src_fd = open(argv[1], O_RDONLY);//src_fd then opens the arguments
+  dest_fd = open(argv[2],O_RDWR | O_EXCL | O_CREAT, S_IRUSR | S_IWUSR);//opens second dest_fd file 
+  if (src_fd < 0)
+  {
+	  printf("The source file doesn't exist.\n");
+	  return 0;
+  }
+  if (dest_fd == -1)
+  {
+	  printf("The destination file already exists.\n");//shows it's successful 
+	  return 0;
+  }
+  else
+  {
+	  while (( readSize = read(src_fd, filebuf, sizeof(filebuf)-1)) > 0)
+	  {
+		  if(write(dest_fd, filebuf, readSize) < 0)
+		  {
+			  return 0;
+		  }
+	  }
+  }
+  close(src_fd);
+  close(dest_fd);
+  return 0;
+}
